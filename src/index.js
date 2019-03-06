@@ -1255,7 +1255,7 @@ function timeline(params = {}) {
   return tl;
 }
 
-anime.version = '3.0.1';
+anime.version = '3.0.2';
 anime.speed = 1;
 anime.running = activeInstances;
 anime.remove = removeTargets;
