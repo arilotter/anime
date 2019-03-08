@@ -19,7 +19,7 @@ const defaultTweenSettings = {
   duration: 1000,
   delay: 0,
   endDelay: 0,
-  easing: 'easeOutElastic(1, .5)',
+  easing: 'linear',
   round: 0
 }
 
