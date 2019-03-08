@@ -857,18 +857,29 @@ let activeInstances = [];
 let pausedInstances = [];
 let raf;
 
+let lastRealTime = 0
+let virtualTime = 0
+let needsKickStart = true
+
 const engine = (() => {
   function play() { 
     raf = requestAnimationFrame(step);
   }
   function step(t) {
+    if(needsKickStart) {
+      needsKickStart = false
+      virtualTime = t
+      lastRealTime = t
+    }
+    virtualTime += (t - lastRealTime) * anime.speed
+    lastRealTime = t
     let activeInstancesLength = activeInstances.length;
     if (activeInstancesLength) {
       let i = 0;
       while (i < activeInstancesLength) {
         const activeInstance = activeInstances[i];
         if (!activeInstance.paused) {
-          activeInstance.tick(t);
+          activeInstance.tick(virtualTime);
         } else {
           const instanceIndex = activeInstances.indexOf(activeInstance);
           if (instanceIndex > -1) {
@@ -881,6 +892,8 @@ const engine = (() => {
       play();
     } else {
       raf = cancelAnimationFrame(raf);
+      virtualTime = 0
+      needsKickStart = true
     }
   }
   return play;
@@ -932,7 +945,7 @@ function anime(params = {}) {
 
   function resetTime() {
     startTime = 0;
-    lastTime = adjustTime(instance.currentTime) * (1 / anime.speed);
+    lastTime = adjustTime(instance.currentTime);
   }
 
   function seekCild(time, child) {
@@ -1106,7 +1119,7 @@ function anime(params = {}) {
   instance.tick = function(t) {
     now = t;
     if (!startTime) startTime = now;
-    setInstanceProgress((now + (lastTime - startTime)) * anime.speed);
+    setInstanceProgress(now + (lastTime - startTime));
   }
 
   instance.seek = function(time) {
